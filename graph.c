@@ -11,11 +11,12 @@ void graph_init() {
 	graph->adjList = (struct AdjList*) malloc(sizeof(struct AdjList));
 	graph->adjList->next = NULL;
 	graph->adjList->node_id = 0;
+	graph->adjList->key = 0;
 
 	graph->adjList->head = (struct AdjListNode*) malloc(sizeof(struct AdjListNode));
 	graph->adjList->head->node_id = 0;
 	graph->adjList->head->next = NULL;
-	
+	graph->adjList->head->key = 0;
 }
 
 
@@ -129,6 +130,35 @@ int remove_node(uint64_t node_id) {
 			printf("Now deleting node %llu...\n", node_id);
 		}
 		prev->next = curr->next;
+		if(DEBUG) {
+			printf("Deleting all the edges that connected to node %llu...\n", node_id);
+			curr = graph->adjList;
+			if(curr == NULL) {
+				printf("curr == NULL!\n");
+				return -1;
+			}
+			curr = curr->next;
+			while(curr != NULL) {
+				AdjListNode *currAdjListNode = curr->head;
+				AdjListNode *prevAdjListNode = currAdjListNode;
+				if(currAdjListNode == NULL) {
+					printf("curr == NULL!\n");
+					return -1;
+				}
+				currAdjListNode = currAdjListNode -> next;
+				while(currAdjListNode != NULL) {
+					if(currAdjListNode -> node_id == node_id) {
+						break;
+					}
+					prevAdjListNode = currAdjListNode;
+					currAdjListNode = currAdjListNode -> next;
+				}
+				if(currAdjListNode != NULL) {
+					prevAdjListNode->next = currAdjListNode->next;
+				}
+				curr = curr -> next;
+			}
+		}
 		// graph->V -= 1;
 		if(DEBUG) {
 			printf("Deleting node %llu completed!\n", node_id);
