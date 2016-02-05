@@ -1,11 +1,11 @@
 PROG = main
 SOURCES = mongoose.c $(PROG).c graph.c
-CFLAGS = -W -Wall $(CFLAGS_EXTRA)
+CFLAGS = -std=c99 -W -Wall $(CFLAGS_EXTRA)
 
 all: $(PROG)
 
 $(PROG): $(SOURCES)
-	$(CC) $(SOURCES) -o $@ $(CFLAGS)
+	$(CC) $(SOURCES) -o cs426_graph_server $(CFLAGS)
 
 clean:
-	rm -rf *.o $(PROG)
+	rm -rf *.o cs426_graph_server

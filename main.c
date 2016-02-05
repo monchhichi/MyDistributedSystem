@@ -252,7 +252,7 @@ void handle_get_edge(struct mg_connection *nc, struct http_message *hm) {
 
 void handle_get_neighbors(struct mg_connection *nc, struct http_message *hm) {
     // parse json
-    struct json_token *json_arr = parse_json2(hm->body.p, hm->body.len); //json_token指针 是把所有json 连着存的
+    struct json_token *json_arr = parse_json2(hm->body.p, hm->body.len); 
     if(DEBUG) {
         printf("\n####### Handling get neighbors #######\n");
         printf("The requset json is: %s\n", json_arr->ptr);
@@ -262,31 +262,46 @@ void handle_get_neighbors(struct mg_connection *nc, struct http_message *hm) {
     struct json_token *node_id = find_json_token(json_arr, "node_id");
     free(json_arr);
     
-    char buf[100];
-    snprintf(buf, 100, "%.*s\n", node_id->len, node_id->ptr);
+    char buf[1000];
+    snprintf(buf, 1000, "%.*s\n", node_id->len, node_id->ptr);
     
     int id = atoi(buf);
     AdjListNode *neighbors;
     int rc = get_neighbors(id, &neighbors);
-    char data[100];
+    char data[1000];
     if (rc == 0) {
-        snprintf(data, 100, "{ \"node_id\": %d, \"neighbors\": [", id);
+        snprintf(data, 1000, "{ \"node_id\": %d, \"neighbors\": [", id);
         int flag = 0;
+        char temp[1000];
+        // printf("previous: %s\n", data);
         for (AdjListNode *tmp = neighbors->next; tmp != NULL; tmp = tmp->next) {
-            snprintf(data, 100, "%s%llu,", data, tmp->node_id);
+            // snprintf(tmp, 1000, "%llu,", tmp->node_id);
+            snprintf(temp, 1000, "%llu", tmp->node_id);
+            // printf("temp: %s", temp);
+            strcat(data, temp);
+            strcat(data, ",");
+            // printf("current data%s\n", data);
             flag = 1;
         }
-        // if flag == 0, means it has no neighbout, no need to delete the last ','
+        // if flag == 0, means it has no neighbors, no need to delete the last ','
         if(flag) {
             data[strlen(data) - 1] = '\0';
         }   
-        snprintf(data, 100, "%s] }", data);
+        // printf("data: %s\n", temp);
+        // strcat(data, temp);
+        strcat(data, "] }");
+        // printf("after: %s\n", data);
+
+        // snprintf(data, 1000, "%s] }", data);
         mg_printf(nc, "HTTP/1.1 200 OK\r\nContent-Length: %d\r\n"
                     "Content-Type: application/json\r\n\r\n%s",
                     (int) strlen(data), data);
+        // printf("%.*s\n", nc->send_mbuf.len, nc->send_mbuf.buf);
+
     } 
     else if(rc == -1){
         mg_printf(nc, "HTTP/1.1 400 Bad Request\r\nContent-Length: 0\r\n\r\n");
+        // printf("%.*s\n", nc->send_mbuf.len, nc->send_mbuf.buf);
     }
     else {
         printf("Unknown return value!\n");
@@ -294,7 +309,7 @@ void handle_get_neighbors(struct mg_connection *nc, struct http_message *hm) {
 }
 
 void handle_shortest_path(struct mg_connection *nc, struct http_message *hm) {
-    struct json_token *json_arr = parse_json2(hm->body.p, hm->body.len); //json_token指针 是把所有json 连着存的
+    struct json_token *json_arr = parse_json2(hm->body.p, hm->body.len);
     if(DEBUG) {
         printf("\n####### Handling caculate shortest_path #######\n");
         printf("The requset json is: %s\n", json_arr->ptr);
@@ -344,36 +359,17 @@ int main(int argc, char *argv[]) {
     else {
         printf("DEBUG MODE CLOSED\n");
     }
+    if (argc > 1) {
+        s_http_port = argv[1];
+    }
     struct mg_mgr mgr;
     struct mg_connection *nc;
-    int i;
     char *cp;
     
     mg_mgr_init(&mgr, NULL);
     
     graph_init();
     
-    /* Process command line options to customize HTTP server */
-    for (i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "-D") == 0 && i + 1 < argc) {
-            mgr.hexdump_file = argv[++i];
-        } else if (strcmp(argv[i], "-d") == 0 && i + 1 < argc) {
-            s_http_server_opts.document_root = argv[++i];
-        } else if (strcmp(argv[i], "-p") == 0 && i + 1 < argc) {
-            s_http_port = argv[++i];
-        } else if (strcmp(argv[i], "-a") == 0 && i + 1 < argc) {
-            s_http_server_opts.auth_domain = argv[++i];
-        } else if (strcmp(argv[i], "-P") == 0 && i + 1 < argc) {
-            s_http_server_opts.global_auth_file = argv[++i];
-        } else if (strcmp(argv[i], "-A") == 0 && i + 1 < argc) {
-            s_http_server_opts.per_directory_auth_file = argv[++i];
-        } else if (strcmp(argv[i], "-r") == 0 && i + 1 < argc) {
-            s_http_server_opts.url_rewrites = argv[++i];
-        } else {
-            fprintf(stderr, "Unknown option: [%s]\n", argv[i]);
-            exit(1);
-        }
-    }
     
     /* Set HTTP server options */
     nc = mg_bind(&mgr, s_http_port, ev_handler);

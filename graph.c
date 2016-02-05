@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "graph.h"
 
+
 Graph *graph;
 extern int DEBUG;
 void graph_init() {

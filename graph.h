@@ -1,3 +1,4 @@
+#include "mongoose.h"
 // A structure to represent an adjacency list node
 typedef struct AdjListNode
 {
