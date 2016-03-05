@@ -7,3 +7,5 @@ void handle_get_edge(struct mg_connection *nc, struct http_message *hm);
 void handle_get_neighbors(struct mg_connection *nc, struct http_message *hm);
 void handle_shortest_path(struct mg_connection *nc, struct http_message *hm);
 void handle_remove_edge(struct mg_connection *nc, struct http_message *hm);
+void handle_check_point(struct mg_connection *nc, struct http_message *hm);
+void handle_restore(struct mg_connection *nc, struct http_message *hm);

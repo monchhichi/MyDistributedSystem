@@ -10,6 +10,7 @@
 #include "mongoose.h"
 #include "graph.h"
 #include "server.h"
+#include "log.h"
 
 static const char *s_http_port = "8000";
 static struct mg_serve_http_opts s_http_server_opts;
@@ -44,12 +45,19 @@ void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             else if (mg_vcmp(&hm->uri, "/api/v1/shortest_path") == 0) {
                 handle_shortest_path(nc, hm);
             }
+            else if(mg_vcmp(&hm->uri, "/api/v1/checkpoint") == 0) {
+                handle_check_point(nc, hm);
+            }
+            else if(mg_vcmp(&hm->uri, "/api/v1/restore") == 0) {
+                handle_restore(nc, hm);
+            }
             break;
         default:
             break;
     }
 }
-
+// Each log entry will have a 4-byte opcode (0 for add_node, 1 for add_edge, 2 for remove_node, 3 for remove_edge) 
+// and two 64-bit node IDs (only one of which is used for add_node and remove_node).
 void handle_add_node(struct mg_connection *nc, struct http_message *hm) {
     // parse json
     struct json_token *json_arr = parse_json2(hm->body.p, hm->body.len); //json_token指针 是把所有json 连着存的
@@ -67,6 +75,14 @@ void handle_add_node(struct mg_connection *nc, struct http_message *hm) {
     snprintf(buf, 100, "%.*s\n", node_id->len, node_id->ptr);
     
     int id = atoi(buf);
+
+    // wirte to log
+    int rc0 = add_log(OP_ADD_NODE, id, 0);
+    if (rc0 == -1) {
+        mg_printf(nc, "%s", "HTTP/1.1 507 Insufficient Storage\r\nContent-Length: 0\r\n\r\n");
+        return;
+    }
+
     int rc = add_node(id);
     
     if (rc == 0) {
@@ -81,6 +97,8 @@ void handle_add_node(struct mg_connection *nc, struct http_message *hm) {
     else {
         printf("Unknown return value!\n");
     }
+
+
 }
 
 void handle_remove_node(struct mg_connection *nc, struct http_message *hm) {
@@ -99,6 +117,14 @@ void handle_remove_node(struct mg_connection *nc, struct http_message *hm) {
     snprintf(buf, 100, "%.*s\n", node_id->len, node_id->ptr);
     
     int id = atoi(buf);
+    
+    // wirte to log
+    int rc0 = add_log(OP_REMOVE_NODE, id, 0);
+    if (rc0 == -1) {
+        mg_printf(nc, "%s", "HTTP/1.1 507 Insufficient Storage\r\nContent-Length: 0\r\n\r\n");
+        return;
+    }
+
     int rc = remove_node(id);
     
     if (rc == 0) {
@@ -159,6 +185,15 @@ void handle_add_edge(struct mg_connection *nc, struct http_message *hm) {
     int a_id = atoi(buf);
     snprintf(buf, 100, "%.*s\n", node_b_id->len, node_b_id->ptr);
     int b_id = atoi(buf);
+
+    // write to log
+    int rc0 = add_log(OP_ADD_EDGE, a_id, b_id);
+    if (rc0 == -1) {
+        mg_printf(nc, "%s", "HTTP/1.1 507 Insufficient Storage\r\nContent-Length: 0\r\n\r\n");
+        return;
+    }
+
+
     int rc = add_edge(a_id, b_id);
     char data[100];
     if (rc == 0) {
@@ -197,6 +232,14 @@ void handle_remove_edge(struct mg_connection *nc, struct http_message *hm) {
     int a_id = atoi(buf);
     snprintf(buf, 100, "%.*s\n", node_b_id->len, node_b_id->ptr);
     int b_id = atoi(buf);
+
+    // write to log
+    int rc0 = add_log(OP_REMOVE_EDGE, a_id, b_id);
+    if (rc0 == -1) {
+        mg_printf(nc, "%s", "HTTP/1.1 507 Insufficient Storage\r\nContent-Length: 0\r\n\r\n");
+        return;
+    }
+    
     int rc = remove_edge(a_id, b_id);
     char data[100];
     if (rc == 0) {
@@ -352,7 +395,40 @@ void handle_shortest_path(struct mg_connection *nc, struct http_message *hm) {
     }
 }
 
+void handle_check_point(struct mg_connection *nc, struct http_message *hm) {
+    if(DEBUG) {
+        printf("\n####### Handling adding checkpoint #######\n");
+    }
+    int rc = checkpoint();
+    if(rc == 0) {
+        mg_printf(nc, "HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n");
+    }
+    else if(rc == -1) {
+        mg_printf(nc, "HTTP/1.1 507 Insufficient Space\r\nContent-Length: 0\r\n\r\n");
+    }
+    else {
+        printf("Unknown return value!\n");
+    }
+}
+
+void handle_restore(struct mg_connection *nc, struct http_message *hm) {
+    if(DEBUG) {
+        printf("\n####### Handling restoring checkpoint #######\n");
+    }
+    int rc = restore();
+    if(rc == 0) {
+        mg_printf(nc, "HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n");
+    }
+    else if(rc == -1) {
+        mg_printf(nc, "HTTP/1.1 507 Failed\r\nContent-Length: 0\r\n\r\n");
+    }
+    else {
+        printf("Unknown return value!\n");
+    }
+}
+
 int main(int argc, char *argv[]) {
+    format_disk();
     if(DEBUG) {
         printf("DEBUG MODE OPEN\n");
     }
@@ -369,7 +445,6 @@ int main(int argc, char *argv[]) {
     mg_mgr_init(&mgr, NULL);
     
     graph_init();
-    
     
     /* Set HTTP server options */
     nc = mg_bind(&mgr, s_http_port, ev_handler);

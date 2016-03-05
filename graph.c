@@ -5,6 +5,18 @@
 
 Graph *graph;
 extern int DEBUG;
+extern char *log_filename;
+int64_t delimiter_for_node = -1;
+int64_t delimiter_for_graph = -2;
+
+extern int BLOCK_SIZE;
+extern int MAXIMUM_ENTRY_NUM;
+
+extern int START_LOG_SEG;
+extern int START_CHECKPOINT_SEG;
+// extern START_CHECKPOINT_SEG;
+// extern BLOCK_SIZE;
+
 void graph_init() {
 	graph = (struct Graph*) malloc(sizeof(struct Graph));
 	graph->V = 0;
@@ -605,6 +617,9 @@ int shortest_path(uint64_t node_a_id, uint64_t node_b_id) {
 	// }
 	return dist[headOfB->key];
 }
+
+
+
 void printAdjList() {
 	printf("*************************************\n");
 	printf("The current state of adjandency list: \n");

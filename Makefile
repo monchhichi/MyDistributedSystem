@@ -1,5 +1,5 @@
 PROG = main
-SOURCES = mongoose.c $(PROG).c graph.c
+SOURCES = mongoose.c $(PROG).c graph.c log.c
 CFLAGS = -std=c99 -W -Wall $(CFLAGS_EXTRA)
 
 all: $(PROG)
