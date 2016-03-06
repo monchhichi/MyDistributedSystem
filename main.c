@@ -451,7 +451,7 @@ int main(int argc, char *argv[]) {
         printf("Correct input format:\n");
         printf("./cs426_graph_server <port> <devfile>\n");
         printf("$ ./cs426_graph_server -f <port> <devfile>\n");
-        return;!
+        return;
     }
     struct mg_mgr mgr;
     struct mg_connection *nc;
