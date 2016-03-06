@@ -12,11 +12,11 @@ int MAXIMUM_ENTRY_NUM = 200;
 int START_LOG_SEG = 1;
 int START_CHECKPOINT_SEG = 0.5 * 1024 * 1024;
 
-int DEBUG_LOG = 1;
+int DEBUG_LOG = 0;
 extern int64_t delimiter_for_node;
 extern int64_t delimiter_for_graph;
 extern Graph *graph;
-const char *log_filename = "disk_file";
+const char *log_filename = "/dev/disk2s2";
 
 int add_log(uint32_t opcode, uint64_t node_a_id, uint64_t node_b_id) {
 	/*
@@ -319,8 +319,9 @@ int new_next_block(int generation_num) {
 	2. Update the tail 
 	3. Construct a new block at tail with given generation_num (and entry_num is 0)
 	*/
-	printf("**** Start to construct a new block for generation %d: **** \n", generation_num);
-	
+	if(DEBUG_LOG) {
+		printf("**** Start to construct a new block for generation %d: **** \n", generation_num);
+	}
 	int fd;
 	if(( fd = open(log_filename, O_RDWR ) ) < 0) {
 		perror("open");
