@@ -447,9 +447,11 @@ int main(int argc, char *argv[]) {
         log_filename = argv[2];
     }
     else {
+        printf("INPUT FORMAT ERROR!!\n");
         printf("Correct input format:\n");
         printf("./cs426_graph_server <port> <devfile>\n");
         printf("$ ./cs426_graph_server -f <port> <devfile>\n");
+        return;!
     }
     struct mg_mgr mgr;
     struct mg_connection *nc;
