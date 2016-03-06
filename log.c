@@ -12,11 +12,11 @@ int MAXIMUM_ENTRY_NUM = 200;
 int START_LOG_SEG = 1;
 int START_CHECKPOINT_SEG = 0.5 * 1024 * 1024;
 
-int DEBUG_LOG = 0;
+int DEBUG_LOG = 1;
 extern int64_t delimiter_for_node;
 extern int64_t delimiter_for_graph;
 extern Graph *graph;
-const char *log_filename = "/dev/disk2s2";
+extern char* log_filename;
 
 int add_log(uint32_t opcode, uint64_t node_a_id, uint64_t node_b_id) {
 	/*

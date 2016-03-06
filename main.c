@@ -14,6 +14,7 @@
 
 static const char *s_http_port = "8000";
 static struct mg_serve_http_opts s_http_server_opts;
+char *log_filename;
 
 const int DEBUG = 0;
 void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
@@ -428,15 +429,27 @@ void handle_restore(struct mg_connection *nc, struct http_message *hm) {
 }
 
 int main(int argc, char *argv[]) {
-    format_disk();
     if(DEBUG) {
         printf("DEBUG MODE OPEN\n");
     }
     else {
         printf("DEBUG MODE CLOSED\n");
     }
-    if (argc > 1) {
+    if (argc == 4) {
+        s_http_port = argv[2];
+        log_filename = argv[3];
+        if(!strcmp(argv[1], "-f")) {
+            format_disk();
+        }
+    }
+    else if(argc == 3){
         s_http_port = argv[1];
+        log_filename = argv[2];
+    }
+    else {
+        printf("Correct input format:\n");
+        printf("./cs426_graph_server <port> <devfile>\n");
+        printf("$ ./cs426_graph_server -f <port> <devfile>\n");
     }
     struct mg_mgr mgr;
     struct mg_connection *nc;
