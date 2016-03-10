@@ -16,7 +16,7 @@ static const char *s_http_port = "8000";
 static struct mg_serve_http_opts s_http_server_opts;
 char *log_filename;
 
-const int DEBUG = 0;
+const int DEBUG = 1;
 void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
     struct http_message *hm = (struct http_message *) ev_data;
     
@@ -451,7 +451,7 @@ int main(int argc, char *argv[]) {
         printf("Correct input format:\n");
         printf("./cs426_graph_server <port> <devfile>\n");
         printf("$ ./cs426_graph_server -f <port> <devfile>\n");
-        return;
+        return 0;
     }
     struct mg_mgr mgr;
     struct mg_connection *nc;

@@ -12,7 +12,7 @@ int MAXIMUM_ENTRY_NUM = 200;
 int START_LOG_SEG = 1;
 int START_CHECKPOINT_SEG = 0.5 * 1024 * 1024;
 
-int DEBUG_LOG = 0;
+int DEBUG_LOG = 1;
 extern int64_t delimiter_for_node;
 extern int64_t delimiter_for_graph;
 extern Graph *graph;
