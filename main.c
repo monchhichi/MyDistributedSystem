@@ -435,6 +435,8 @@ int main(int argc, char *argv[]) {
     else {
         printf("DEBUG MODE CLOSED\n");
     }
+    
+    graph_init();
     if (argc == 4) {
         s_http_port = argv[2];
         log_filename = argv[3];
@@ -445,6 +447,7 @@ int main(int argc, char *argv[]) {
     else if(argc == 3){
         s_http_port = argv[1];
         log_filename = argv[2];
+        restore();
     }
     else {
         printf("INPUT FORMAT ERROR!!\n");
@@ -458,8 +461,6 @@ int main(int argc, char *argv[]) {
     char *cp;
     
     mg_mgr_init(&mgr, NULL);
-    
-    graph_init();
     
     /* Set HTTP server options */
     nc = mg_bind(&mgr, s_http_port, ev_handler);

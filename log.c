@@ -372,6 +372,13 @@ int format_disk() {
 	new_next_block(generation_num);
 
 	update_checksum();
+
+	// format checkpoint region
+	uint64_t pos = START_CHECKPOINT_SEG;
+	pos *= BLOCK_SIZE;
+	lseek(fd, pos, SEEK_SET);
+	write(fd, &delimiter_for_graph, 8);
+
 	close(fd);
 	
 	if(DEBUG_LOG) {
