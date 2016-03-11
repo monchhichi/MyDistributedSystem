@@ -38,4 +38,6 @@ int restore_check_point();
 int restore_log();
 
 int checksum_valid();
+
+int update_checksum();
 #endif

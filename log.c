@@ -71,21 +71,7 @@ int add_log(uint32_t opcode, uint64_t node_a_id, uint64_t node_b_id) {
 	lseek(fd, last_block_position + 4, SEEK_SET);
 	write(fd, &entry_num, 4);
 	
-	// Update checksum for superblock
-	// Get log area last block num:
-	int start_log_seg, size_log_seg, head;
-	lseek(fd, 0, SEEK_SET);
-	read(fd, &start_log_seg, 4);
-	read(fd, &size_log_seg, 4);
-	read(fd, &head, 4);
-	read(fd, &tail, 4);
-	read(fd, &generation_num, 4);
-
-	int checksum = start_log_seg ^ size_log_seg ^ head ^ tail ^ generation_num;
-
-	write(fd, &checksum, 4);
-	// Update checksum for current block
-
+	update_checksum();
 	close(fd);
 
 	if(DEBUG_LOG) {
@@ -97,7 +83,27 @@ int add_log(uint32_t opcode, uint64_t node_a_id, uint64_t node_b_id) {
 
 
 
+int update_checksum() {
+	// Update checksum for superblock
+	int fd;
+	if(( fd = open(log_filename, O_RDWR | O_DIRECT) ) < 0) {
+		perror("open");
+		return -1;
+	}
+	int start_log_seg, size_log_seg, head, generation_num, tail;
+	lseek(fd, 0, SEEK_SET);
+	read(fd, &start_log_seg, 4);
+	read(fd, &size_log_seg, 4);
+	read(fd, &head, 4);
+	read(fd, &tail, 4);
+	read(fd, &generation_num, 4);
 
+	int checksum = start_log_seg ^ size_log_seg ^ head ^ tail ^ generation_num;
+
+	write(fd, &checksum, 4);
+	// Update checksum for current block
+	return 0;
+}
 
 int checkpoint() {
 	/*
@@ -145,6 +151,7 @@ int checkpoint() {
 	lseek(fd, 8, SEEK_SET);
 	write(fd, &tail, 4);
 
+	update_checksum();
 	if(DEBUG_LOG) {
 		print_all_checkpoint_block();
 		print_all_log_block();
@@ -362,11 +369,9 @@ int format_disk() {
 	write(fd, &tail			 , 4);
 	write(fd, &generation_num, 4);
 
-	unsigned int checksum = 0;
-	checksum = start_log_seg ^ size_log_seg ^ head ^ tail ^ generation_num;
-	write(fd, &checksum, 4);
-
 	new_next_block(generation_num);
+
+	update_checksum();
 	close(fd);
 	
 	if(DEBUG_LOG) {
@@ -410,6 +415,7 @@ int new_next_block(int generation_num) {
 	write(fd, &generation_num, 4);
 	write(fd, &entry_num, 4);
 
+	update_checksum();
 
 	if(DEBUG_LOG) {
 		printf("**** Constructing a new block finished!\n");

@@ -78,9 +78,9 @@ The remainder of the disk is used for the checkpoint.
 `./lab2test.sh http://<host>:<port>`
 
 ### Server
-`sudo ./cs426_graph_server localht:8000 /dev/sdc`
+`sudo ./cs426_graph_server 8000 /dev/sdc`
 
-`sudo ./cs426_graph_server -f localht:8000 /dev/sdc`
+`sudo ./cs426_graph_server -f 8000 /dev/sdc`
 
 ### Connect to Azure
 $ ssh yyzhang@168.62.177.50
