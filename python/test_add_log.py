@@ -4,7 +4,22 @@ import httplib
 headers = {"Content-type": "application/json"}
 conn = httplib.HTTPConnection("localhost:8000")
 
+# conn.request("POST", "/api/v1/add_node", '{ "node_id": 199 }', headers)
+# r = conn.getresponse()
+# print r.read()
+# print r.status, r.reason
+
+# conn.request("POST", "/api/v1/add_node", '{ "node_id": 9999 }', headers)
+# r = conn.getresponse()
+# print r.read()
+# print r.status, r.reason
+
 # conn.request("POST", "/api/v1/checkpoint", '{ "node_id": 2 }', headers)
+# r = conn.getresponse()
+# print r.read()
+# print r.status, r.reason
+
+# conn.request("POST", "/api/v1/add_node", '{ "node_id": 10000 }', headers)
 # r = conn.getresponse()
 # print r.read()
 # print r.status, r.reason
@@ -15,12 +30,9 @@ print r.read()
 print r.status, r.reason
 
 
-# conn.request("POST", "/api/v1/add_node", '{ "node_id": 0 }', headers)
-# r = conn.getresponse()
-# print r.read()
-# print r.status, r.reason
 
-# conn.request("POST", "/api/v1/add_node", '{ "node_id": 2 }', headers)
+
+# conn.request("POST", "/api/v1/checkpoint", '{ "node_id": 2 }', headers)
 # r = conn.getresponse()
 # print r.read()
 # print r.status, r.reason

@@ -6,11 +6,16 @@
 #include "log.h"
 #include "graph.h"
 
+#ifndef O_DIRECT
+#define O_DIRECT 0
+#endif
+
 
 int BLOCK_SIZE = 4096;
 int MAXIMUM_ENTRY_NUM = 200;
 int START_LOG_SEG = 1;
 int START_CHECKPOINT_SEG = 0.5 * 1024 * 1024;
+int CHECKSUM_POSITION_IN_LOG_BLOCK = 4092;
 
 int DEBUG_LOG = 1;
 extern int64_t delimiter_for_node;
@@ -18,17 +23,19 @@ extern int64_t delimiter_for_graph;
 extern Graph *graph;
 extern char* log_filename;
 
+
 int add_log(uint32_t opcode, uint64_t node_a_id, uint64_t node_b_id) {
 	/*
 	1. Get the right position for the new entry
 	2. Write Entry into block
 	3. Update entry_num
+	4. Update checksum
 	*/
 	if(DEBUG_LOG) {
 		printf("Start the process of adding log...\n");
 	}
 	int fd;
-	if(( fd = open(log_filename, O_RDWR ) ) < 0) {
+	if(( fd = open(log_filename, O_RDWR | O_DIRECT) ) < 0) {
 		perror("open");
 		return -1;
 	}
@@ -51,6 +58,7 @@ int add_log(uint32_t opcode, uint64_t node_a_id, uint64_t node_b_id) {
 	if(entry_num > MAXIMUM_ENTRY_NUM - 1) { // If current block is full, construct a new block
 		new_next_block(generation_num);
 	}
+
 	last_block_position = BLOCK_SIZE * tail;
 	int entry_start_position_in_block = 8;
 	lseek(fd, last_block_position + entry_start_position_in_block + entry_num * 20, SEEK_SET);
@@ -63,6 +71,21 @@ int add_log(uint32_t opcode, uint64_t node_a_id, uint64_t node_b_id) {
 	lseek(fd, last_block_position + 4, SEEK_SET);
 	write(fd, &entry_num, 4);
 	
+	// Update checksum for superblock
+	// Get log area last block num:
+	int start_log_seg, size_log_seg, head;
+	lseek(fd, 0, SEEK_SET);
+	read(fd, &start_log_seg, 4);
+	read(fd, &size_log_seg, 4);
+	read(fd, &head, 4);
+	read(fd, &tail, 4);
+	read(fd, &generation_num, 4);
+
+	int checksum = start_log_seg ^ size_log_seg ^ head ^ tail ^ generation_num;
+
+	write(fd, &checksum, 4);
+	// Update checksum for current block
+
 	close(fd);
 
 	if(DEBUG_LOG) {
@@ -85,7 +108,7 @@ int checkpoint() {
 		printf("Start the process of storing the graph...\n");
 	}
 	int fd;
-  	if((fd = open(log_filename, O_RDWR)) < 0){
+  	if((fd = open(log_filename, O_RDWR | O_DIRECT )) < 0){
     	perror("open:");
     	return -1;
   	}
@@ -142,6 +165,10 @@ int restore() {
 	if(DEBUG_LOG) {
 		printf("######## Start to restore ######## \n");
 	}
+
+	if(checksum_valid() == -1) {
+		return -1;
+	} 
 	if(restore_check_point() == -1 || restore_log() == -1) {
 		return -1;
 	}
@@ -151,7 +178,39 @@ int restore() {
 	return 0;
 }
 
+int checksum_valid() {
+	/*
+	check whether the superblock is valid or not
+	*/
+	if(DEBUG_LOG) {
+		printf("######## Superblock validation start! ######## \n");
+	}
+	int fd;
+  	if((fd = open(log_filename, O_RDWR | O_DIRECT )) < 0){
+    	perror("open:");
+    	return -1;
+  	}
+	int start_log_seg, size_log_seg, head, tail, generation_num, checksum;
+	lseek(fd, 0, SEEK_SET);
+	read(fd, &start_log_seg, 4);
+	read(fd, &size_log_seg, 4);
+	read(fd, &head, 4);
+	read(fd, &tail, 4);
+	read(fd, &generation_num, 4);
+	read(fd, &checksum, 4);
+	close(fd);
+	if(checksum != (start_log_seg ^ size_log_seg ^ head ^ tail ^ generation_num)) {
+		if(DEBUG_LOG) {
+			printf("######## Superblock is not valid! ######## \n");
+		}
+		return -1;
+	}
+	if(DEBUG_LOG) {
+		printf("######## Superblock is valid! ######## \n");
+	}
 
+	return 0;
+}
 int restore_check_point() {
 	/*
 	1. Initialize the graph
@@ -161,7 +220,7 @@ int restore_check_point() {
 		printf("######## Start to restore from checkpoint: ######## \n");
 	}
 	int fd;
-	if(( fd = open(log_filename, O_RDONLY) ) < 0) {
+	if(( fd = open(log_filename, O_RDONLY | O_DIRECT) ) < 0) {
 		perror("open");
     	return -1;
 	}
@@ -227,7 +286,7 @@ int restore_log() {
 	}
 
 	int fd;
-	if(( fd = open(log_filename, O_RDONLY) ) < 0) {
+	if(( fd = open(log_filename, O_RDONLY | O_DIRECT) ) < 0) {
 		perror("open");
     	return -1;
 	}
@@ -281,7 +340,7 @@ int format_disk() {
 	}
 
 	int fd;
-	if(( fd = open(log_filename, O_RDWR | O_TRUNC) ) < 0) {
+	if(( fd = open(log_filename, O_RDWR | O_TRUNC | O_DIRECT) ) < 0) {
 		perror("open");
     	return -1;
 	}
@@ -301,7 +360,11 @@ int format_disk() {
 	write(fd, &tail			 , 4);
 	write(fd, &generation_num, 4);
 
-	
+	unsigned int checksum = 0;
+	checksum = start_log_seg ^ size_log_seg ^ head ^ tail ^ generation_num;
+	write(fd, &checksum, 4);
+
+	new_next_block(generation_num);
 	close(fd);
 	
 	if(DEBUG_LOG) {
@@ -318,12 +381,13 @@ int new_next_block(int generation_num) {
 	1. Get the current tail
 	2. Update the tail 
 	3. Construct a new block at tail with given generation_num (and entry_num is 0)
+	4. Update the checksum
 	*/
 	if(DEBUG_LOG) {
 		printf("**** Start to construct a new block for generation %d: **** \n", generation_num);
 	}
 	int fd;
-	if(( fd = open(log_filename, O_RDWR ) ) < 0) {
+	if(( fd = open(log_filename, O_RDWR | O_DIRECT ) ) < 0) {
 		perror("open");
 		return -1;
 	}
@@ -343,6 +407,8 @@ int new_next_block(int generation_num) {
 	int entry_num = 0;
 	write(fd, &generation_num, 4);
 	write(fd, &entry_num, 4);
+
+
 	if(DEBUG_LOG) {
 		printf("**** Constructing a new block finished!\n");
 	}
@@ -355,7 +421,7 @@ int print_all_checkpoint_block() {
 	}
 
 	int fd;
-	if(( fd = open(log_filename, O_RDONLY) ) < 0) {
+	if(( fd = open(log_filename, O_RDONLY | O_DIRECT ) ) < 0) {
 		perror("open");
     	return -1;
 	}
@@ -386,7 +452,7 @@ int print_all_log_block() {
 	Print all log block (contains unuseful logs)
 	*/
 	int fd;
-	if(( fd = open(log_filename, O_RDONLY) ) < 0) {
+	if(( fd = open(log_filename, O_RDONLY | O_DIRECT) ) < 0) {
 		perror("open");
     	return -1;
 	}
@@ -395,7 +461,7 @@ int print_all_log_block() {
 		printf("######## Current block status: ######## \n");
 	}
 
-	int start_log_seg, size_log_seg, head, tail, generation_num;
+	int start_log_seg, size_log_seg, head, tail, generation_num, checksum;
 
 	lseek(fd, 0, SEEK_SET);
 	read(fd, &start_log_seg, 4);
@@ -403,6 +469,7 @@ int print_all_log_block() {
 	read(fd, &head, 4);
 	read(fd, &tail, 4);
 	read(fd, &generation_num, 4);
+	read(fd, &checksum, 4);
 
 	printf("**** Super block: ****\n");
 	printf("start_log_seg %d\n", start_log_seg);
@@ -410,7 +477,8 @@ int print_all_log_block() {
 	printf("head %d\n", head);
 	printf("tail %d\n", tail);
 	printf("generation_num %d\n", generation_num);
-
+	printf("checksum %d\n", checksum);
+	
 	printf("**** Normal log block: ****\n");
 	for(int64_t i = 1; i <= tail; i++) {
 		printf("$$ Block %lld: $$\n", i);

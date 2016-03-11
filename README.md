@@ -1,6 +1,7 @@
 # My graph server
 Distributed Graph Server for cs426.
 
+Instructions are based on assignment instuctions.
 
 ## Interfaces
 
@@ -46,11 +47,14 @@ In this lab you will implement the following functions for your undirected-graph
 The on-disk format is as follows.
 ### Super block
 The first block is a superblock for storing metadata.
+
 `byte 0: 32 bits unsigned int: start of log segment` (In my code should be block 1)<br/>
 `byte 4: 32 bits unsigned int: size of log segment` (In my code should be 0.5 * 1024 * 1024 blocks)<br/>
 `byte 8: 32 bits unsigned int: current head of the useful log` (e.g. block 55)<br/>
 `byte 12: 32 bits unsigned int: current tail of the useful log` (e.g. block 55)<br/>
 `byte 16: 32 bits unsigned int: newest generation of the log` (e.g. 10)<br/>
+`byte 20: checksum of byte 0 ~ 16, i.e start_log_seg xor size_log_seg xor head xor tail xor generation_num xor checksum` <br/>
+
 
 ### Log block segment
 Here stores all the logs(useful and non-useful).
