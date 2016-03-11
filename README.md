@@ -75,10 +75,11 @@ The remainder of the disk is used for the checkpoint.
 
 ## Command
 ### Client
-`./lab1test.sh http://<host>:<port>`
+`./lab2test.sh http://<host>:<port>`
 
 ### Server
 `sudo ./cs426_graph_server localht:8000 /dev/sdc`
+
 `sudo ./cs426_graph_server -f localht:8000 /dev/sdc`
 
 ### Connect to Azure
