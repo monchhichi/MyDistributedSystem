@@ -2,7 +2,7 @@ import httplib
 
 
 headers = {"Content-type": "application/json"}
-conn = httplib.HTTPConnection("localhost:8000")
+conn = httplib.HTTPConnection("168.62.177.50:8000")
 
 # conn.request("POST", "/api/v1/add_node", '{ "node_id": 199 }', headers)
 # r = conn.getresponse()

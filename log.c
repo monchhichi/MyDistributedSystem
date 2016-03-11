@@ -202,7 +202,9 @@ int checksum_valid() {
 	if(checksum != (start_log_seg ^ size_log_seg ^ head ^ tail ^ generation_num)) {
 		if(DEBUG_LOG) {
 			printf("######## Superblock is not valid! ######## \n");
+			print_all_log_block();
 		}
+
 		return -1;
 	}
 	if(DEBUG_LOG) {
