@@ -532,7 +532,7 @@ int main(int argc, char *argv[]) {
 
     extern char *optarg;
     int c;
-    while ((c = getopt(argc, argv, "a:b::")) != -1) {
+    while ((c = getopt(argc, argv, "a:b:")) != -1) {
         if(optarg != NULL) {
             string s(optarg);
             vector<string> v = split(s, ' ');
