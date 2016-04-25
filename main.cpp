@@ -533,22 +533,28 @@ int main(int argc, char *argv[]) {
     extern char *optarg;
     int c;
     while ((c = getopt(argc, argv, "a:b::")) != -1) {
-        string s(optarg);
-        vector<string> v = split(s, ' ');
-        switch (c) {
-          // localhost
-          case 'a':
-            strcpy(s_http_port, v[0].c_str());
-            rpc_port = atoi(v[1]);
-            break;
-          // next in chain
-          case 'b':
-            strcpy(s_next_host, v[0].c_str());
-            strcpy(s_next_http_port, v[1].c_str());
-            next_rpc_port = atoi(v[2]);
-            tailFlag = false;
-            break;
+        if(optarg != NULL) {
+            string s(optarg);
+            vector<string> v = split(s, ' ');
+            switch (c) {
+              // localhost
+              case 'a':
+                strcpy(s_http_port, v[0].c_str());
+                rpc_port = atoi(v[1]);
+                break;
+              // next in chain
+              case 'b':
+                strcpy(s_next_host, v[0].c_str());
+                strcpy(s_next_http_port, v[1].c_str());
+                next_rpc_port = atoi(v[2]);
+                tailFlag = false;
+                break;
+            }
         }
+        else {
+            printf("optarg is null!!\n");
+        }
+        
     }
 
     cout << "This node: localhost...port(" << s_http_port << "), rpc port(" << rpc_port << ")" << endl;
