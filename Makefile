@@ -1,5 +1,5 @@
 CC = g++
-LOADLIBES = -lthrift
+LOADLIBES = -L/usr/local/lib/ -lthrift
 CXXFLAGS = -std=c++11 -W -Wall
 
 EXEC = cs426_graph_server
