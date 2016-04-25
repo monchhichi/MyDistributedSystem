@@ -4,7 +4,7 @@
 
 
 Graph *graph;
-extern int DEBUG;
+const int DEBUG = 0;
 void graph_init() {
 	graph = (struct Graph*) malloc(sizeof(struct Graph));
 	graph->V = 0;
