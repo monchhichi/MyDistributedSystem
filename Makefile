@@ -12,7 +12,7 @@ GEN_SRC = gen-cpp/RemoteService.cpp \
 all: $(EXEC)
 
 $(EXEC): $(OBJS)
-	$(CC) $(CXXFLAGS) $(LOADLIBES) $(GEN_SRC) $(OBJS) -o $(EXEC)
+	$(CC) $(CXXFLAGS) $(GEN_SRC) $(OBJS) -o $(EXEC) $(LOADLIBES)
 
 main.o: main.cpp
 	$(CC) $(CXXFLAGS) -c main.cpp -o main.o
