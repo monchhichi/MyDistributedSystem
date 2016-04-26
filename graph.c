@@ -4,7 +4,7 @@
 
 
 Graph *graph;
-const int DEBUG = 0;
+const int DEBUG = 1;
 void graph_init() {
 	graph = (struct Graph*) malloc(sizeof(struct Graph));
 	graph->V = 0;
@@ -606,6 +606,8 @@ int shortest_path(uint64_t node_a_id, uint64_t node_b_id) {
 	return dist[headOfB->key];
 }
 void printAdjList() {
+	// temp 
+	return;
 	printf("*************************************\n");
 	printf("The current state of adjandency list: \n");
 	AdjList *curr = graph->adjList;
