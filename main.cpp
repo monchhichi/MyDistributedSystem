@@ -45,7 +45,7 @@ static struct mg_serve_http_opts s_http_server_opts;
 
 const int DEBUG = 0;
 
-RemoteServiceClient *client;
+// RemoteServiceClient *client;
 
 static char s_http_port[20];
 static int rpc_port;
@@ -92,13 +92,13 @@ void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
 }
 
 void init() {
-    if (!tailFlag) {
-        boost::shared_ptr<TTransport> socket(new TSocket(s_next_host, next_rpc_port));
-        boost::shared_ptr<TTransport> transport(new TBufferedTransport(socket));
-        boost::shared_ptr<TProtocol> protocol(new TBinaryProtocol(transport));
-        client = new RemoteServiceClient(protocol);
-        transport->open();
-    }
+    // if (!tailFlag) {
+    //     boost::shared_ptr<TTransport> socket(new TSocket(s_next_host, next_rpc_port));
+    //     boost::shared_ptr<TTransport> transport(new TBufferedTransport(socket));
+    //     boost::shared_ptr<TProtocol> protocol(new TBinaryProtocol(transport));
+    //     client = new RemoteServiceClient(protocol);
+    //     transport->open();
+    // }
 }
 
 void handle_add_node(struct mg_connection *nc, struct http_message *hm) {
@@ -133,7 +133,13 @@ void handle_add_node(struct mg_connection *nc, struct http_message *hm) {
         printf("Unknown return value!\n");
     }
     if (!tailFlag) {
-        client->rmt_add_node(id);
+        boost::shared_ptr<TTransport> socket(new TSocket(s_next_host, next_rpc_port));
+        boost::shared_ptr<TTransport> transport(new TBufferedTransport(socket));
+        boost::shared_ptr<TProtocol> protocol(new TBinaryProtocol(transport));
+        RemoteServiceClient client(protocol);
+        transport->open();
+        client.rmt_add_node(id);
+        transport->close();
     }
 }
 
@@ -169,7 +175,13 @@ void handle_remove_node(struct mg_connection *nc, struct http_message *hm) {
     }
 
     if (!tailFlag) {
-        client->rmt_remove_node(id);
+        boost::shared_ptr<TTransport> socket(new TSocket(s_next_host, next_rpc_port));
+        boost::shared_ptr<TTransport> transport(new TBufferedTransport(socket));
+        boost::shared_ptr<TProtocol> protocol(new TBinaryProtocol(transport));
+        RemoteServiceClient client(protocol);
+        transport->open();
+        client.rmt_remove_node(id);
+        transport->close();
     }
 }
 
@@ -236,7 +248,13 @@ void handle_add_edge(struct mg_connection *nc, struct http_message *hm) {
         printf("Unknown return value!\n");
     }
     if (!tailFlag) {
-        client->rmt_add_edge(a_id, b_id);
+        boost::shared_ptr<TTransport> socket(new TSocket(s_next_host, next_rpc_port));
+        boost::shared_ptr<TTransport> transport(new TBufferedTransport(socket));
+        boost::shared_ptr<TProtocol> protocol(new TBinaryProtocol(transport));
+        RemoteServiceClient client(protocol);
+        transport->open();
+        client.rmt_add_edge(a_id, b_id);
+        transport->close();
     }
 }
 
@@ -274,7 +292,13 @@ void handle_remove_edge(struct mg_connection *nc, struct http_message *hm) {
         printf("Unknown return value!\n");
     }
     if (!tailFlag) {
-        client->rmt_remove_edge(a_id, b_id);
+        boost::shared_ptr<TTransport> socket(new TSocket(s_next_host, next_rpc_port));
+        boost::shared_ptr<TTransport> transport(new TBufferedTransport(socket));
+        boost::shared_ptr<TProtocol> protocol(new TBinaryProtocol(transport));
+        RemoteServiceClient client(protocol);
+        transport->open();
+        client.rmt_remove_edge(a_id, b_id);
+        transport->close();
     }
 }
 
@@ -424,7 +448,13 @@ class RemoteServiceHandler : virtual public RemoteServiceIf {
     // Your implementation goes here
     int rc = add_node(node_id);
     if (!tailFlag) {
-        client->rmt_add_node(node_id);
+        boost::shared_ptr<TTransport> socket(new TSocket(s_next_host, next_rpc_port));
+        boost::shared_ptr<TTransport> transport(new TBufferedTransport(socket));
+        boost::shared_ptr<TProtocol> protocol(new TBinaryProtocol(transport));
+        RemoteServiceClient client(protocol);
+        transport->open();
+        client.rmt_add_node(node_id);
+        transport->close();
     }
     return rc;
     // printf("rmt_add_node\n");
@@ -434,7 +464,13 @@ class RemoteServiceHandler : virtual public RemoteServiceIf {
     // Your implementation goes here
     int rc = add_edge(node_a_id, node_b_id);
     if (!tailFlag) {
-        client->rmt_add_edge(node_a_id, node_b_id);
+        boost::shared_ptr<TTransport> socket(new TSocket(s_next_host, next_rpc_port));
+        boost::shared_ptr<TTransport> transport(new TBufferedTransport(socket));
+        boost::shared_ptr<TProtocol> protocol(new TBinaryProtocol(transport));
+        RemoteServiceClient client(protocol);
+        transport->open();
+        client.rmt_add_edge(node_a_id, node_b_id);
+        transport->close();
     }
     return rc;
     // printf("rmt_add_edge\n");
@@ -444,7 +480,13 @@ class RemoteServiceHandler : virtual public RemoteServiceIf {
     // Your implementation goes here
     int rc = remove_node(node_id);
     if (!tailFlag) {
-        client->rmt_remove_node(node_id);
+        boost::shared_ptr<TTransport> socket(new TSocket(s_next_host, next_rpc_port));
+        boost::shared_ptr<TTransport> transport(new TBufferedTransport(socket));
+        boost::shared_ptr<TProtocol> protocol(new TBinaryProtocol(transport));
+        RemoteServiceClient client(protocol);
+        transport->open();
+        client.rmt_remove_node(node_id);
+        transport->close();
     }
     return rc;
     // printf("rmt_remove_node\n");
@@ -454,7 +496,13 @@ class RemoteServiceHandler : virtual public RemoteServiceIf {
     // Your implementation goes here
     int rc = remove_edge(node_a_id, node_b_id);
     if (!tailFlag) {
-        client->rmt_remove_edge(node_a_id, node_b_id);
+        boost::shared_ptr<TTransport> socket(new TSocket(s_next_host, next_rpc_port));
+        boost::shared_ptr<TTransport> transport(new TBufferedTransport(socket));
+        boost::shared_ptr<TProtocol> protocol(new TBinaryProtocol(transport));
+        RemoteServiceClient client(protocol);
+        transport->open();
+        client.rmt_remove_edge(node_a_id, node_b_id);
+        transport->close();
     }
     return rc;
     // printf("rmt_remove_edge\n");
