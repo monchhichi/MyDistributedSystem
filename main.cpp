@@ -250,7 +250,7 @@ void handle_add_edge(struct mg_connection *nc, struct http_message *hm) {
         transport->close();
 
         // remote node exists
-        if (rc != 0)
+        if (rc == 0)
             rc = add_edge_half(a_id, b_id);
     }
     mtx.unlock();
