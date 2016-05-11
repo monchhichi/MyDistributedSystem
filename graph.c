@@ -556,7 +556,6 @@ int get_edge(uint64_t node_a_id, uint64_t node_b_id){
 	
 	AdjList *currAdjList = graph->adjList;
 	AdjList *headOfA = NULL;
-	AdjList *headOfB = NULL;
 	if(currAdjList == NULL) {
 		printf("curr == NULL!\n");
 		return -1;
@@ -565,18 +564,13 @@ int get_edge(uint64_t node_a_id, uint64_t node_b_id){
 	while(currAdjList != NULL) {
 		if(currAdjList->node_id == node_a_id) {
 			headOfA = currAdjList;
-		}
-		if(currAdjList->node_id == node_b_id) {
-			headOfB = currAdjList;
-		}
-		if(headOfA != NULL && headOfB != NULL) {
 			break;
 		}
 		// printf("*Breakpoint1\n");
 		// printf("*Breakpoint2\n");
 		currAdjList = currAdjList->next;
 	}
-	if(headOfA == NULL || headOfB == NULL) {
+	if(headOfA == NULL) {
 		if(DEBUG) {
 			printf("NodeA or(and) NodeB does not exists!\n");
 			printAdjList();
@@ -589,14 +583,14 @@ int get_edge(uint64_t node_a_id, uint64_t node_b_id){
 	}
 	AdjListNode *currAdjListNode = headOfA->head;
 	AdjListNode *prevAdjListNode = currAdjListNode;
-	// printf("Breakpoint0\n");
+
 	if(currAdjListNode == NULL) {
-		printf("currAdjListNode == NULL. Something wired happens...\n");
+		printf("currAdjListNode == NULL. Something wired happened...\n");
 		return -1;
 	}
 	currAdjListNode = currAdjListNode->next;
 	while(currAdjListNode != NULL) {
-		// printf("Breakpoint1\n");
+
 		if(currAdjListNode->node_id == node_b_id) {
 			break;
 		}
@@ -771,10 +765,3 @@ void printAdjList() {
 	}
 	printf("*************************************\n");
 }
-// int main() {
-// 	graph_init();
-// 	for(int i = 0; i < 5; i++) {
-// 		add_node(i);
-// 	}
-// 	printAdjList();
-// }

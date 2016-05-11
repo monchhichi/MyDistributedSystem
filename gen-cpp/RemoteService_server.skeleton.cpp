@@ -28,21 +28,12 @@ class RemoteServiceHandler : virtual public RemoteServiceIf {
    * lists and exception lists are specified using the exact same syntax as
    * field lists in struct or exception definitions.
    * 
-   * @param node_id
+   * @param node_a_id
+   * @param node_b_id
    */
-  int32_t rmt_add_node(const int64_t node_id) {
-    // Your implementation goes here
-    printf("rmt_add_node\n");
-  }
-
   int32_t rmt_add_edge_half(const int64_t node_a_id, const int64_t node_b_id) {
     // Your implementation goes here
     printf("rmt_add_edge_half\n");
-  }
-
-  int32_t rmt_remove_node(const int64_t node_id) {
-    // Your implementation goes here
-    printf("rmt_remove_node\n");
   }
 
   int32_t rmt_remove_edge(const int64_t node_a_id, const int64_t node_b_id) {
@@ -53,16 +44,6 @@ class RemoteServiceHandler : virtual public RemoteServiceIf {
   int32_t rmt_remove_edge_half(const int64_t node_a_id, const int64_t node_b_id) {
     // Your implementation goes here
     printf("rmt_remove_edge_half\n");
-  }
-
-  void rmt_lock() {
-    // Your implementation goes here
-    printf("rmt_lock\n");
-  }
-
-  void rmt_unlock() {
-    // Your implementation goes here
-    printf("rmt_unlock\n");
   }
 
 };

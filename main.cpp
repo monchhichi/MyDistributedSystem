@@ -32,6 +32,7 @@
 #include <cstring>
 #include <mutex>
 #include <cmath>
+#include <utility>
 
 #include "gen-cpp/RemoteService.h"
 
@@ -45,7 +46,7 @@ using namespace std;
 
 static struct mg_serve_http_opts s_http_server_opts;
 
-const int DEBUG = 0;
+const int DEBUG = 1;
 
 static char s_http_port[20];
 
@@ -62,13 +63,14 @@ string s_http_ports[20];
 int partitionCount;
 
 mutex mtx;
+mutex rmt_mtx;
 
 int get_rpc_port(int partitionIdx) {
     return partitionIdx + 20000;
 }
 
 int get_partition_idx(uint64_t node_id) {
-  return node_id % partitionCount;
+    return node_id % partitionCount;
 }
 
 void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
@@ -113,8 +115,9 @@ void handle_add_node(struct mg_connection *nc, struct http_message *hm) {
     struct json_token *json_arr = parse_json2(hm->body.p, hm->body.len); //json_token指针 是把所有json 连着存的
 
     if(DEBUG) {
-        printf("\n####### Handling add node #######\n");
-        printf("The requset json is: %s\n", json_arr->ptr);
+        cout << "####### Handling add node #######" << endl;
+        cout << "The requset json is: " << json_arr->ptr << endl;
+        cout << "####### Handling add node #######" << endl;
     }
     
     // extract node id from json
@@ -218,18 +221,15 @@ void handle_add_edge(struct mg_connection *nc, struct http_message *hm) {
     snprintf(buf, 100, "%.*s\n", node_b_id->len, node_b_id->ptr);
     int b_id = atoi(buf);
     
-    // decide whether to use RPC
+    // node with lower partition number @local
     int partition_a_index = get_partition_idx(a_id);
     int partition_b_index = get_partition_idx(b_id);
-    int tmp;
     if (partition_a_index != local_partition_index) {
-        tmp = partition_a_index;
-        partition_a_index = partition_b_index;
-        partition_b_index = tmp;
-        tmp = a_id;
-        a_id = b_id;
-        b_id = tmp;
+        swap(partition_a_index, partition_b_index);
+        swap(a_id, b_id);
     }
+
+    cout << partition_a_index << ", " << partition_b_index << endl;
 
     // NODE A @local, NODE B @local/@remote
     int rc;
@@ -294,18 +294,15 @@ void handle_remove_edge(struct mg_connection *nc, struct http_message *hm) {
     int b_id = atoi(buf);
 
 
-    // decide whether to use RPC
+    // node with lower partition number @local
     int partition_a_index = get_partition_idx(a_id);
     int partition_b_index = get_partition_idx(b_id);
-    int tmp;
     if (partition_a_index != local_partition_index) {
-        tmp = partition_a_index;
-        partition_a_index = partition_b_index;
-        partition_b_index = tmp;
-        tmp = a_id;
-        a_id = b_id;
-        b_id = tmp;
+        swap(partition_a_index, partition_b_index);
+        swap(a_id, b_id);
     }
+
+    cout << partition_a_index << ", " << partition_b_index << endl;
 
     // NODE A @local, NODE B @local/@remote
     int rc;
@@ -345,15 +342,6 @@ void handle_remove_edge(struct mg_connection *nc, struct http_message *hm) {
     else {
         printf("Unknown return value!\n");
     }
-    // if (!tailFlag) {
-    //     boost::shared_ptr<TTransport> socket(new TSocket(s_next_host, next_rpc_port));
-    //     boost::shared_ptr<TTransport> transport(new TBufferedTransport(socket));
-    //     boost::shared_ptr<TProtocol> protocol(new TBinaryProtocol(transport));
-    //     RemoteServiceClient client(protocol);
-    //     transport->open();
-    //     client.rmt_remove_edge(a_id, b_id);
-    //     transport->close();
-    // }
 }
 
 void handle_get_edge(struct mg_connection *nc, struct http_message *hm) {
@@ -375,6 +363,15 @@ void handle_get_edge(struct mg_connection *nc, struct http_message *hm) {
     int a_id = atoi(buf);
     snprintf(buf, 100, "%.*s\n", node_b_id->len, node_b_id->ptr);
     int b_id = atoi(buf);
+
+    // node with lower partition number @local
+    int partition_a_index = get_partition_idx(a_id);
+    int partition_b_index = get_partition_idx(b_id);
+    if (partition_a_index != local_partition_index) {
+        swap(partition_a_index, partition_b_index);
+        swap(a_id, b_id);
+    }
+
     int rc = get_edge(a_id, b_id);
 
     const char *data = NULL;
@@ -498,56 +495,28 @@ class RemoteServiceHandler : virtual public RemoteServiceIf {
  public:
   RemoteServiceHandler() {}
 
-  int32_t rmt_add_node(const int64_t node_id) {
-    // acquire local lock
-    mtx.lock();
-
-    int rc = add_node(node_id);
-
-    // release local lock
-    mtx.unlock();
-    printf("rmt_add_node\n");
-    return rc;
-  }
-
   int32_t rmt_add_edge_half(const int64_t node_a_id, const int64_t node_b_id) {
     mtx.lock();
     int rc = add_edge_half(node_a_id, node_b_id);
-    printf("rmt_add_edge_half\n");
     mtx.unlock();
-    return rc;
-  }
-
-  int32_t rmt_remove_node(const int64_t node_id) {
-    int rc = remove_node(node_id);
-    printf("rmt_remove_node\n");
+    printf("rmt_add_edge_half\n");
     return rc;
   }
 
   int32_t rmt_remove_edge(const int64_t node_a_id, const int64_t node_b_id) {
     mtx.lock();
     int rc = remove_edge(node_a_id, node_b_id);
-    printf("rmt_remove_edge\n");
     mtx.unlock();
+    printf("rmt_remove_edge\n");
     return rc;
   }
 
   int32_t rmt_remove_edge_half(const int64_t node_a_id, const int64_t node_b_id) {
     mtx.lock();
     int rc = remove_edge_half(node_a_id, node_b_id);
+    mtx.unlock();
     printf("rmt_remove_edge_half\n");
     return rc;
-    mtx.unlock();
-  }
-
-  void rmt_lock() {
-    mtx.lock();
-    printf("rmt_lock\n");
-  }
-
-  void rmt_unlock() {
-    mtx.unlock();
-    printf("rmt_unlock\n");
   }
 
 };
@@ -642,12 +611,14 @@ int main(int argc, char *argv[]) {
                         // cout << *it << endl;
                         // skip self as servers are in order
                         if (i == local_partition_index)
-                            i++;
+                            i ++;
                         vector<string> tmp = split(*it, ':');
                         s_http_hosts[i] = tmp[0];
                         s_http_ports[i] = tmp[1];
                         i ++;
                     }
+                    if (i == local_partition_index)
+                        i ++;
                     partitionCount = i;
                     break;
                 default:
