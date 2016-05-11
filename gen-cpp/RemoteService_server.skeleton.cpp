@@ -50,6 +50,11 @@ class RemoteServiceHandler : virtual public RemoteServiceIf {
     printf("rmt_remove_edge\n");
   }
 
+  int32_t rmt_remove_edge_half(const int64_t node_a_id, const int64_t node_b_id) {
+    // Your implementation goes here
+    printf("rmt_remove_edge_half\n");
+  }
+
   void rmt_lock() {
     // Your implementation goes here
     printf("rmt_lock\n");

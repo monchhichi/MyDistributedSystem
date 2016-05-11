@@ -272,15 +272,6 @@ void handle_add_edge(struct mg_connection *nc, struct http_message *hm) {
     else {
         printf("Unknown return value!\n");
     }
-    // if (!tailFlag) {
-    //     boost::shared_ptr<TTransport> socket(new TSocket(s_next_host, next_rpc_port));
-    //     boost::shared_ptr<TTransport> transport(new TBufferedTransport(socket));
-    //     boost::shared_ptr<TProtocol> protocol(new TBinaryProtocol(transport));
-    //     RemoteServiceClient client(protocol);
-    //     transport->open();
-    //     client.rmt_add_edge(a_id, b_id);
-    //     transport->close();
-    // }
 }
 
 void handle_remove_edge(struct mg_connection *nc, struct http_message *hm) {
@@ -301,7 +292,45 @@ void handle_remove_edge(struct mg_connection *nc, struct http_message *hm) {
     int a_id = atoi(buf);
     snprintf(buf, 100, "%.*s\n", node_b_id->len, node_b_id->ptr);
     int b_id = atoi(buf);
-    int rc = remove_edge(a_id, b_id);
+
+
+    // decide whether to use RPC
+    int partition_a_index = get_partition_idx(a_id);
+    int partition_b_index = get_partition_idx(b_id);
+    int tmp;
+    if (partition_a_index != local_partition_index) {
+        tmp = partition_a_index;
+        partition_a_index = partition_b_index;
+        partition_b_index = tmp;
+        tmp = a_id;
+        a_id = b_id;
+        b_id = tmp;
+    }
+
+    // NODE A @local, NODE B @local/@remote
+    int rc;
+    mtx.lock();
+    
+    // both nodes arrive at local
+    if (partition_b_index == local_partition_index) {
+        rc = remove_edge(a_id, b_id);
+    } else {
+        const char *host_addr = s_http_hosts[partition_b_index].c_str();
+        // RPC
+        boost::shared_ptr<TTransport> socket(new TSocket(host_addr, get_rpc_port(partition_b_index)));
+        boost::shared_ptr<TTransport> transport(new TBufferedTransport(socket));
+        boost::shared_ptr<TProtocol> protocol(new TBinaryProtocol(transport));
+        RemoteServiceClient client(protocol);
+        transport->open();
+        rc = client.rmt_remove_edge_half(b_id, a_id);
+        transport->close();
+
+        // remote node exists
+        if (rc == 0)
+            rc = remove_edge_half(a_id, b_id);
+    }
+    mtx.unlock();
+
     char data[100];
     if (rc == 0) {
         snprintf(data, 100, "{ \"node_a_id\": %d, \"node_b_id\": %d }", a_id, b_id);
@@ -496,9 +525,19 @@ class RemoteServiceHandler : virtual public RemoteServiceIf {
   }
 
   int32_t rmt_remove_edge(const int64_t node_a_id, const int64_t node_b_id) {
+    mtx.lock();
     int rc = remove_edge(node_a_id, node_b_id);
     printf("rmt_remove_edge\n");
+    mtx.unlock();
     return rc;
+  }
+
+  int32_t rmt_remove_edge_half(const int64_t node_a_id, const int64_t node_b_id) {
+    mtx.lock();
+    int rc = remove_edge_half(node_a_id, node_b_id);
+    printf("rmt_remove_edge_half\n");
+    return rc;
+    mtx.unlock();
   }
 
   void rmt_lock() {

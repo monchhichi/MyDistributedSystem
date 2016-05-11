@@ -40,6 +40,8 @@ int add_edge_half(uint64_t node_a_id, uint64_t node_b_id);
 
 int remove_edge(uint64_t node_a_id, uint64_t node_b_id);
 
+int remove_edge_half(uint64_t node_a_id, uint64_t node_b_id);
+
 int get_neighbors(uint64_t node_id, AdjListNode **p_neighbors);
 
 int shortest_path(uint64_t node_a_id, uint64_t node_b_id);

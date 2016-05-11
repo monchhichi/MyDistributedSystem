@@ -471,6 +471,78 @@ int remove_edge(uint64_t node_a_id, uint64_t node_b_id){
 	return 0;
 }
 
+int remove_edge_half(uint64_t node_a_id, uint64_t node_b_id){
+	if(DEBUG) {
+		printf("Start the process of removing edge between %llu, %llu...\n", node_a_id, node_b_id);
+	}
+	if(node_a_id == node_b_id) {
+		if(DEBUG) {
+			printf("Edge between %llu and %llu does not exist!\n", node_a_id, node_b_id);
+		}
+		return -1;
+	}
+	
+	AdjList *currAdjList = graph->adjList;
+	AdjList *headOfA = NULL;
+
+	if(currAdjList == NULL) {
+		printf("curr == NULL!\n");
+		return -1;
+	}
+	currAdjList = currAdjList->next;
+	while(currAdjList != NULL) {
+		if(currAdjList->node_id == node_a_id) {
+			headOfA = currAdjList;
+			break;
+		}
+		// printf("*Breakpoint1\n");
+		// printf("*Breakpoint2\n");
+		currAdjList = currAdjList->next;
+	}
+	if(headOfA == NULL) {
+		if(DEBUG) { 
+			printf("NodeA or(and) NodeB does not exists!\n");
+			printAdjList();
+		}
+		
+		return -1;
+	}
+	// Remove edge from A:
+	if(DEBUG) {
+		printf("Start to remove B from A's adjandency list...\n");
+	}
+	AdjListNode *currAdjListNode = headOfA->head;
+	AdjListNode *prevAdjListNode = currAdjListNode;
+	// printf("Breakpoint0\n");
+	if(currAdjListNode == NULL) {
+		if(DEBUG) {
+			printf("currAdjListNode == NULL. Something wired happens...\n");
+		}
+		return -1;
+	}
+	currAdjListNode = currAdjListNode->next;
+	while(currAdjListNode != NULL) {
+		// printf("Breakpoint1\n");
+		if(currAdjListNode->node_id == node_b_id) {
+			break;
+		}
+		prevAdjListNode = currAdjListNode;
+		currAdjListNode = currAdjListNode->next;
+	} 
+	if(currAdjListNode == NULL) {
+		if(DEBUG) {
+			printf("Edge between %llu and %llu does not exist!\n", node_a_id, node_b_id);
+		}
+		return -1;
+	}
+	prevAdjListNode->next = currAdjListNode->next;
+	if(DEBUG) {
+		printf("Completed removing B from A's adjandency list!\n");
+	}
+	
+	return 0;
+}
+
 int get_edge(uint64_t node_a_id, uint64_t node_b_id){
 	if(DEBUG) {
 		printf("Start the process of getting edge between %llu, %llu...\n", node_a_id, node_b_id);
