@@ -251,7 +251,7 @@ int add_edge(uint64_t node_a_id, uint64_t node_b_id){
 		printf("Completed adding B to A's adjandency list!\n");
 	}
 	if(DEBUG) {
-		printf("Start to add B to A's adjandency list...\n");
+		printf("Start to add A to B's adjandency list...\n");
 	}
 	currAdjListNode = headOfB->head;
 	prevAdjListNode = currAdjListNode;
@@ -278,8 +278,84 @@ int add_edge(uint64_t node_a_id, uint64_t node_b_id){
 	prevAdjListNode->key = headOfA->key;
 	prevAdjListNode->next = NULL;
 	if(DEBUG) { 
-		printf("Completed adding B to A's adjandency list!\n");
+		printf("Completed adding A to B's adjandency list!\n");
 		printAdjList();
+	}
+	
+	return 0;
+}
+
+
+int add_edge_half(uint64_t node_a_id, uint64_t node_b_id){
+	if(DEBUG) {
+		printf("Start the process of adding edge between %llu, %llu...\n", node_a_id, node_b_id);
+	}
+	/* return value:
+		1. node_a_id == node_b_id : -1
+		2. a or b does not exist: -2
+		3. edge between a and b already exists: -3
+		4. success: 0
+	*/
+	if(node_a_id == node_b_id) {
+		if(DEBUG) {
+			printf("Cannot add edge to the single node %llu!\n", node_a_id);
+		}
+		return -1;
+	}
+	AdjList *currAdjList = graph->adjList;
+	AdjList *headOfA = NULL;
+	if(currAdjList == NULL) {
+		printf("curr == NULL!\n");
+		return -1;
+	}
+	currAdjList = currAdjList->next;
+	while(currAdjList != NULL) {
+		if(currAdjList->node_id == node_a_id) {
+			headOfA = currAdjList;
+			break;
+		}
+		currAdjList = currAdjList->next;
+	}
+	if(headOfA == NULL) {
+		if(DEBUG) { 
+			printf("NodeA or(and) NodeB does not exists!\n");
+			printAdjList();
+		}
+		return -2;
+	}
+	// Add edge to A:
+	if(DEBUG) {
+		printf("Start to add B to A's adjandency list...\n");
+	}
+	AdjListNode *currAdjListNode = headOfA->head;
+	AdjListNode *prevAdjListNode = currAdjListNode;
+	// printf("Breakpoint0\n");
+	if(currAdjListNode == NULL) {
+		if(DEBUG) {
+			printf("currAdjListNode == NULL. Something wired happens...\n");
+		}
+		return -3;
+	}
+	currAdjListNode = currAdjListNode->next;
+	while(currAdjListNode != NULL) {
+		// printf("Breakpoint1\n");
+		if(currAdjListNode->node_id == node_b_id) {
+			if(DEBUG) {
+				printf("Edge bewteen node a and node b alreay exists\n");
+				printAdjList();
+			}
+			
+			return -3;
+		}
+		prevAdjListNode = currAdjListNode;
+		currAdjListNode = currAdjListNode->next;
+	} 
+	prevAdjListNode->next = (AdjListNode *)malloc(sizeof(AdjListNode));
+	prevAdjListNode = prevAdjListNode->next;
+	prevAdjListNode->node_id = node_b_id;
+	prevAdjListNode->next = NULL;
+	if(DEBUG) {
+		printf("Completed adding B to A's adjandency list!\n");
 	}
 	
 	return 0;

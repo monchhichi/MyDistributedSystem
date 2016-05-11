@@ -32,8 +32,11 @@ class RemoteServiceIf {
    */
   virtual int32_t rmt_add_node(const int64_t node_id) = 0;
   virtual int32_t rmt_add_edge(const int64_t node_a_id, const int64_t node_b_id) = 0;
+  virtual int32_t rmt_add_edge_half(const int64_t node_a_id, const int64_t node_b_id) = 0;
   virtual int32_t rmt_remove_node(const int64_t node_id) = 0;
   virtual int32_t rmt_remove_edge(const int64_t node_a_id, const int64_t node_b_id) = 0;
+  virtual void rmt_lock() = 0;
+  virtual void rmt_unlock() = 0;
 };
 
 class RemoteServiceIfFactory {
@@ -71,6 +74,10 @@ class RemoteServiceNull : virtual public RemoteServiceIf {
     int32_t _return = 0;
     return _return;
   }
+  int32_t rmt_add_edge_half(const int64_t /* node_a_id */, const int64_t /* node_b_id */) {
+    int32_t _return = 0;
+    return _return;
+  }
   int32_t rmt_remove_node(const int64_t /* node_id */) {
     int32_t _return = 0;
     return _return;
@@ -78,6 +85,12 @@ class RemoteServiceNull : virtual public RemoteServiceIf {
   int32_t rmt_remove_edge(const int64_t /* node_a_id */, const int64_t /* node_b_id */) {
     int32_t _return = 0;
     return _return;
+  }
+  void rmt_lock() {
+    return;
+  }
+  void rmt_unlock() {
+    return;
   }
 };
 
@@ -291,6 +304,117 @@ class RemoteService_rmt_add_edge_presult {
   int32_t* success;
 
   _RemoteService_rmt_add_edge_presult__isset __isset;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+
+};
+
+typedef struct _RemoteService_rmt_add_edge_half_args__isset {
+  _RemoteService_rmt_add_edge_half_args__isset() : node_a_id(false), node_b_id(false) {}
+  bool node_a_id :1;
+  bool node_b_id :1;
+} _RemoteService_rmt_add_edge_half_args__isset;
+
+class RemoteService_rmt_add_edge_half_args {
+ public:
+
+  RemoteService_rmt_add_edge_half_args(const RemoteService_rmt_add_edge_half_args&);
+  RemoteService_rmt_add_edge_half_args& operator=(const RemoteService_rmt_add_edge_half_args&);
+  RemoteService_rmt_add_edge_half_args() : node_a_id(0), node_b_id(0) {
+  }
+
+  virtual ~RemoteService_rmt_add_edge_half_args() throw();
+  int64_t node_a_id;
+  int64_t node_b_id;
+
+  _RemoteService_rmt_add_edge_half_args__isset __isset;
+
+  void __set_node_a_id(const int64_t val);
+
+  void __set_node_b_id(const int64_t val);
+
+  bool operator == (const RemoteService_rmt_add_edge_half_args & rhs) const
+  {
+    if (!(node_a_id == rhs.node_a_id))
+      return false;
+    if (!(node_b_id == rhs.node_b_id))
+      return false;
+    return true;
+  }
+  bool operator != (const RemoteService_rmt_add_edge_half_args &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const RemoteService_rmt_add_edge_half_args & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+
+class RemoteService_rmt_add_edge_half_pargs {
+ public:
+
+
+  virtual ~RemoteService_rmt_add_edge_half_pargs() throw();
+  const int64_t* node_a_id;
+  const int64_t* node_b_id;
+
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _RemoteService_rmt_add_edge_half_result__isset {
+  _RemoteService_rmt_add_edge_half_result__isset() : success(false) {}
+  bool success :1;
+} _RemoteService_rmt_add_edge_half_result__isset;
+
+class RemoteService_rmt_add_edge_half_result {
+ public:
+
+  RemoteService_rmt_add_edge_half_result(const RemoteService_rmt_add_edge_half_result&);
+  RemoteService_rmt_add_edge_half_result& operator=(const RemoteService_rmt_add_edge_half_result&);
+  RemoteService_rmt_add_edge_half_result() : success(0) {
+  }
+
+  virtual ~RemoteService_rmt_add_edge_half_result() throw();
+  int32_t success;
+
+  _RemoteService_rmt_add_edge_half_result__isset __isset;
+
+  void __set_success(const int32_t val);
+
+  bool operator == (const RemoteService_rmt_add_edge_half_result & rhs) const
+  {
+    if (!(success == rhs.success))
+      return false;
+    return true;
+  }
+  bool operator != (const RemoteService_rmt_add_edge_half_result &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const RemoteService_rmt_add_edge_half_result & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+typedef struct _RemoteService_rmt_add_edge_half_presult__isset {
+  _RemoteService_rmt_add_edge_half_presult__isset() : success(false) {}
+  bool success :1;
+} _RemoteService_rmt_add_edge_half_presult__isset;
+
+class RemoteService_rmt_add_edge_half_presult {
+ public:
+
+
+  virtual ~RemoteService_rmt_add_edge_half_presult() throw();
+  int32_t* success;
+
+  _RemoteService_rmt_add_edge_half_presult__isset __isset;
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
 
@@ -511,6 +635,154 @@ class RemoteService_rmt_remove_edge_presult {
 
 };
 
+
+class RemoteService_rmt_lock_args {
+ public:
+
+  RemoteService_rmt_lock_args(const RemoteService_rmt_lock_args&);
+  RemoteService_rmt_lock_args& operator=(const RemoteService_rmt_lock_args&);
+  RemoteService_rmt_lock_args() {
+  }
+
+  virtual ~RemoteService_rmt_lock_args() throw();
+
+  bool operator == (const RemoteService_rmt_lock_args & /* rhs */) const
+  {
+    return true;
+  }
+  bool operator != (const RemoteService_rmt_lock_args &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const RemoteService_rmt_lock_args & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+
+class RemoteService_rmt_lock_pargs {
+ public:
+
+
+  virtual ~RemoteService_rmt_lock_pargs() throw();
+
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+
+class RemoteService_rmt_lock_result {
+ public:
+
+  RemoteService_rmt_lock_result(const RemoteService_rmt_lock_result&);
+  RemoteService_rmt_lock_result& operator=(const RemoteService_rmt_lock_result&);
+  RemoteService_rmt_lock_result() {
+  }
+
+  virtual ~RemoteService_rmt_lock_result() throw();
+
+  bool operator == (const RemoteService_rmt_lock_result & /* rhs */) const
+  {
+    return true;
+  }
+  bool operator != (const RemoteService_rmt_lock_result &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const RemoteService_rmt_lock_result & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+
+class RemoteService_rmt_lock_presult {
+ public:
+
+
+  virtual ~RemoteService_rmt_lock_presult() throw();
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+
+};
+
+
+class RemoteService_rmt_unlock_args {
+ public:
+
+  RemoteService_rmt_unlock_args(const RemoteService_rmt_unlock_args&);
+  RemoteService_rmt_unlock_args& operator=(const RemoteService_rmt_unlock_args&);
+  RemoteService_rmt_unlock_args() {
+  }
+
+  virtual ~RemoteService_rmt_unlock_args() throw();
+
+  bool operator == (const RemoteService_rmt_unlock_args & /* rhs */) const
+  {
+    return true;
+  }
+  bool operator != (const RemoteService_rmt_unlock_args &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const RemoteService_rmt_unlock_args & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+
+class RemoteService_rmt_unlock_pargs {
+ public:
+
+
+  virtual ~RemoteService_rmt_unlock_pargs() throw();
+
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+
+class RemoteService_rmt_unlock_result {
+ public:
+
+  RemoteService_rmt_unlock_result(const RemoteService_rmt_unlock_result&);
+  RemoteService_rmt_unlock_result& operator=(const RemoteService_rmt_unlock_result&);
+  RemoteService_rmt_unlock_result() {
+  }
+
+  virtual ~RemoteService_rmt_unlock_result() throw();
+
+  bool operator == (const RemoteService_rmt_unlock_result & /* rhs */) const
+  {
+    return true;
+  }
+  bool operator != (const RemoteService_rmt_unlock_result &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const RemoteService_rmt_unlock_result & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+};
+
+
+class RemoteService_rmt_unlock_presult {
+ public:
+
+
+  virtual ~RemoteService_rmt_unlock_presult() throw();
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+
+};
+
 class RemoteServiceClient : virtual public RemoteServiceIf {
  public:
   RemoteServiceClient(boost::shared_ptr< ::apache::thrift::protocol::TProtocol> prot) {
@@ -542,12 +814,21 @@ class RemoteServiceClient : virtual public RemoteServiceIf {
   int32_t rmt_add_edge(const int64_t node_a_id, const int64_t node_b_id);
   void send_rmt_add_edge(const int64_t node_a_id, const int64_t node_b_id);
   int32_t recv_rmt_add_edge();
+  int32_t rmt_add_edge_half(const int64_t node_a_id, const int64_t node_b_id);
+  void send_rmt_add_edge_half(const int64_t node_a_id, const int64_t node_b_id);
+  int32_t recv_rmt_add_edge_half();
   int32_t rmt_remove_node(const int64_t node_id);
   void send_rmt_remove_node(const int64_t node_id);
   int32_t recv_rmt_remove_node();
   int32_t rmt_remove_edge(const int64_t node_a_id, const int64_t node_b_id);
   void send_rmt_remove_edge(const int64_t node_a_id, const int64_t node_b_id);
   int32_t recv_rmt_remove_edge();
+  void rmt_lock();
+  void send_rmt_lock();
+  void recv_rmt_lock();
+  void rmt_unlock();
+  void send_rmt_unlock();
+  void recv_rmt_unlock();
  protected:
   boost::shared_ptr< ::apache::thrift::protocol::TProtocol> piprot_;
   boost::shared_ptr< ::apache::thrift::protocol::TProtocol> poprot_;
@@ -565,15 +846,21 @@ class RemoteServiceProcessor : public ::apache::thrift::TDispatchProcessor {
   ProcessMap processMap_;
   void process_rmt_add_node(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_rmt_add_edge(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_rmt_add_edge_half(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_rmt_remove_node(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_rmt_remove_edge(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_rmt_lock(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_rmt_unlock(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
  public:
   RemoteServiceProcessor(boost::shared_ptr<RemoteServiceIf> iface) :
     iface_(iface) {
     processMap_["rmt_add_node"] = &RemoteServiceProcessor::process_rmt_add_node;
     processMap_["rmt_add_edge"] = &RemoteServiceProcessor::process_rmt_add_edge;
+    processMap_["rmt_add_edge_half"] = &RemoteServiceProcessor::process_rmt_add_edge_half;
     processMap_["rmt_remove_node"] = &RemoteServiceProcessor::process_rmt_remove_node;
     processMap_["rmt_remove_edge"] = &RemoteServiceProcessor::process_rmt_remove_edge;
+    processMap_["rmt_lock"] = &RemoteServiceProcessor::process_rmt_lock;
+    processMap_["rmt_unlock"] = &RemoteServiceProcessor::process_rmt_unlock;
   }
 
   virtual ~RemoteServiceProcessor() {}
@@ -620,6 +907,15 @@ class RemoteServiceMultiface : virtual public RemoteServiceIf {
     return ifaces_[i]->rmt_add_edge(node_a_id, node_b_id);
   }
 
+  int32_t rmt_add_edge_half(const int64_t node_a_id, const int64_t node_b_id) {
+    size_t sz = ifaces_.size();
+    size_t i = 0;
+    for (; i < (sz - 1); ++i) {
+      ifaces_[i]->rmt_add_edge_half(node_a_id, node_b_id);
+    }
+    return ifaces_[i]->rmt_add_edge_half(node_a_id, node_b_id);
+  }
+
   int32_t rmt_remove_node(const int64_t node_id) {
     size_t sz = ifaces_.size();
     size_t i = 0;
@@ -636,6 +932,24 @@ class RemoteServiceMultiface : virtual public RemoteServiceIf {
       ifaces_[i]->rmt_remove_edge(node_a_id, node_b_id);
     }
     return ifaces_[i]->rmt_remove_edge(node_a_id, node_b_id);
+  }
+
+  void rmt_lock() {
+    size_t sz = ifaces_.size();
+    size_t i = 0;
+    for (; i < (sz - 1); ++i) {
+      ifaces_[i]->rmt_lock();
+    }
+    ifaces_[i]->rmt_lock();
+  }
+
+  void rmt_unlock() {
+    size_t sz = ifaces_.size();
+    size_t i = 0;
+    for (; i < (sz - 1); ++i) {
+      ifaces_[i]->rmt_unlock();
+    }
+    ifaces_[i]->rmt_unlock();
   }
 
 };
@@ -674,12 +988,21 @@ class RemoteServiceConcurrentClient : virtual public RemoteServiceIf {
   int32_t rmt_add_edge(const int64_t node_a_id, const int64_t node_b_id);
   int32_t send_rmt_add_edge(const int64_t node_a_id, const int64_t node_b_id);
   int32_t recv_rmt_add_edge(const int32_t seqid);
+  int32_t rmt_add_edge_half(const int64_t node_a_id, const int64_t node_b_id);
+  int32_t send_rmt_add_edge_half(const int64_t node_a_id, const int64_t node_b_id);
+  int32_t recv_rmt_add_edge_half(const int32_t seqid);
   int32_t rmt_remove_node(const int64_t node_id);
   int32_t send_rmt_remove_node(const int64_t node_id);
   int32_t recv_rmt_remove_node(const int32_t seqid);
   int32_t rmt_remove_edge(const int64_t node_a_id, const int64_t node_b_id);
   int32_t send_rmt_remove_edge(const int64_t node_a_id, const int64_t node_b_id);
   int32_t recv_rmt_remove_edge(const int32_t seqid);
+  void rmt_lock();
+  int32_t send_rmt_lock();
+  void recv_rmt_lock(const int32_t seqid);
+  void rmt_unlock();
+  int32_t send_rmt_unlock();
+  void recv_rmt_unlock(const int32_t seqid);
  protected:
   boost::shared_ptr< ::apache::thrift::protocol::TProtocol> piprot_;
   boost::shared_ptr< ::apache::thrift::protocol::TProtocol> poprot_;

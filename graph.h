@@ -25,12 +25,23 @@ typedef struct Graph
 }Graph;
 
 void graph_init();
+
 int add_node(uint64_t node_id);
+
 int remove_node(uint64_t node_id);
+
 int get_node(uint64_t node_id);
+
 int get_edge(uint64_t node_a_id, uint64_t node_b_id);
+
 int add_edge(uint64_t node_a_id, uint64_t node_b_id);
+
+int add_edge_half(uint64_t node_a_id, uint64_t node_b_id);
+
 int remove_edge(uint64_t node_a_id, uint64_t node_b_id);
+
 int get_neighbors(uint64_t node_id, AdjListNode **p_neighbors);
+
 int shortest_path(uint64_t node_a_id, uint64_t node_b_id);
+
 void printAdjList();
