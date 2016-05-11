@@ -27,8 +27,6 @@ service RemoteService {
 
    i32 rmt_add_node(1:i64 node_id),
 
-   i32 rmt_add_edge(1:i64 node_a_id, 2:i64 node_b_id),
-
    i32 rmt_add_edge_half(1:i64 node_a_id, 2:i64 node_b_id),
 
    i32 rmt_remove_node(1:i64 node_id),

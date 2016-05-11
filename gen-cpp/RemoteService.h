@@ -31,7 +31,6 @@ class RemoteServiceIf {
    * @param node_id
    */
   virtual int32_t rmt_add_node(const int64_t node_id) = 0;
-  virtual int32_t rmt_add_edge(const int64_t node_a_id, const int64_t node_b_id) = 0;
   virtual int32_t rmt_add_edge_half(const int64_t node_a_id, const int64_t node_b_id) = 0;
   virtual int32_t rmt_remove_node(const int64_t node_id) = 0;
   virtual int32_t rmt_remove_edge(const int64_t node_a_id, const int64_t node_b_id) = 0;
@@ -67,10 +66,6 @@ class RemoteServiceNull : virtual public RemoteServiceIf {
  public:
   virtual ~RemoteServiceNull() {}
   int32_t rmt_add_node(const int64_t /* node_id */) {
-    int32_t _return = 0;
-    return _return;
-  }
-  int32_t rmt_add_edge(const int64_t /* node_a_id */, const int64_t /* node_b_id */) {
     int32_t _return = 0;
     return _return;
   }
@@ -193,117 +188,6 @@ class RemoteService_rmt_add_node_presult {
   int32_t* success;
 
   _RemoteService_rmt_add_node_presult__isset __isset;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-
-};
-
-typedef struct _RemoteService_rmt_add_edge_args__isset {
-  _RemoteService_rmt_add_edge_args__isset() : node_a_id(false), node_b_id(false) {}
-  bool node_a_id :1;
-  bool node_b_id :1;
-} _RemoteService_rmt_add_edge_args__isset;
-
-class RemoteService_rmt_add_edge_args {
- public:
-
-  RemoteService_rmt_add_edge_args(const RemoteService_rmt_add_edge_args&);
-  RemoteService_rmt_add_edge_args& operator=(const RemoteService_rmt_add_edge_args&);
-  RemoteService_rmt_add_edge_args() : node_a_id(0), node_b_id(0) {
-  }
-
-  virtual ~RemoteService_rmt_add_edge_args() throw();
-  int64_t node_a_id;
-  int64_t node_b_id;
-
-  _RemoteService_rmt_add_edge_args__isset __isset;
-
-  void __set_node_a_id(const int64_t val);
-
-  void __set_node_b_id(const int64_t val);
-
-  bool operator == (const RemoteService_rmt_add_edge_args & rhs) const
-  {
-    if (!(node_a_id == rhs.node_a_id))
-      return false;
-    if (!(node_b_id == rhs.node_b_id))
-      return false;
-    return true;
-  }
-  bool operator != (const RemoteService_rmt_add_edge_args &rhs) const {
-    return !(*this == rhs);
-  }
-
-  bool operator < (const RemoteService_rmt_add_edge_args & ) const;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-
-class RemoteService_rmt_add_edge_pargs {
- public:
-
-
-  virtual ~RemoteService_rmt_add_edge_pargs() throw();
-  const int64_t* node_a_id;
-  const int64_t* node_b_id;
-
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-typedef struct _RemoteService_rmt_add_edge_result__isset {
-  _RemoteService_rmt_add_edge_result__isset() : success(false) {}
-  bool success :1;
-} _RemoteService_rmt_add_edge_result__isset;
-
-class RemoteService_rmt_add_edge_result {
- public:
-
-  RemoteService_rmt_add_edge_result(const RemoteService_rmt_add_edge_result&);
-  RemoteService_rmt_add_edge_result& operator=(const RemoteService_rmt_add_edge_result&);
-  RemoteService_rmt_add_edge_result() : success(0) {
-  }
-
-  virtual ~RemoteService_rmt_add_edge_result() throw();
-  int32_t success;
-
-  _RemoteService_rmt_add_edge_result__isset __isset;
-
-  void __set_success(const int32_t val);
-
-  bool operator == (const RemoteService_rmt_add_edge_result & rhs) const
-  {
-    if (!(success == rhs.success))
-      return false;
-    return true;
-  }
-  bool operator != (const RemoteService_rmt_add_edge_result &rhs) const {
-    return !(*this == rhs);
-  }
-
-  bool operator < (const RemoteService_rmt_add_edge_result & ) const;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-};
-
-typedef struct _RemoteService_rmt_add_edge_presult__isset {
-  _RemoteService_rmt_add_edge_presult__isset() : success(false) {}
-  bool success :1;
-} _RemoteService_rmt_add_edge_presult__isset;
-
-class RemoteService_rmt_add_edge_presult {
- public:
-
-
-  virtual ~RemoteService_rmt_add_edge_presult() throw();
-  int32_t* success;
-
-  _RemoteService_rmt_add_edge_presult__isset __isset;
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
 
@@ -811,9 +695,6 @@ class RemoteServiceClient : virtual public RemoteServiceIf {
   int32_t rmt_add_node(const int64_t node_id);
   void send_rmt_add_node(const int64_t node_id);
   int32_t recv_rmt_add_node();
-  int32_t rmt_add_edge(const int64_t node_a_id, const int64_t node_b_id);
-  void send_rmt_add_edge(const int64_t node_a_id, const int64_t node_b_id);
-  int32_t recv_rmt_add_edge();
   int32_t rmt_add_edge_half(const int64_t node_a_id, const int64_t node_b_id);
   void send_rmt_add_edge_half(const int64_t node_a_id, const int64_t node_b_id);
   int32_t recv_rmt_add_edge_half();
@@ -845,7 +726,6 @@ class RemoteServiceProcessor : public ::apache::thrift::TDispatchProcessor {
   typedef std::map<std::string, ProcessFunction> ProcessMap;
   ProcessMap processMap_;
   void process_rmt_add_node(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
-  void process_rmt_add_edge(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_rmt_add_edge_half(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_rmt_remove_node(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_rmt_remove_edge(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
@@ -855,7 +735,6 @@ class RemoteServiceProcessor : public ::apache::thrift::TDispatchProcessor {
   RemoteServiceProcessor(boost::shared_ptr<RemoteServiceIf> iface) :
     iface_(iface) {
     processMap_["rmt_add_node"] = &RemoteServiceProcessor::process_rmt_add_node;
-    processMap_["rmt_add_edge"] = &RemoteServiceProcessor::process_rmt_add_edge;
     processMap_["rmt_add_edge_half"] = &RemoteServiceProcessor::process_rmt_add_edge_half;
     processMap_["rmt_remove_node"] = &RemoteServiceProcessor::process_rmt_remove_node;
     processMap_["rmt_remove_edge"] = &RemoteServiceProcessor::process_rmt_remove_edge;
@@ -896,15 +775,6 @@ class RemoteServiceMultiface : virtual public RemoteServiceIf {
       ifaces_[i]->rmt_add_node(node_id);
     }
     return ifaces_[i]->rmt_add_node(node_id);
-  }
-
-  int32_t rmt_add_edge(const int64_t node_a_id, const int64_t node_b_id) {
-    size_t sz = ifaces_.size();
-    size_t i = 0;
-    for (; i < (sz - 1); ++i) {
-      ifaces_[i]->rmt_add_edge(node_a_id, node_b_id);
-    }
-    return ifaces_[i]->rmt_add_edge(node_a_id, node_b_id);
   }
 
   int32_t rmt_add_edge_half(const int64_t node_a_id, const int64_t node_b_id) {
@@ -985,9 +855,6 @@ class RemoteServiceConcurrentClient : virtual public RemoteServiceIf {
   int32_t rmt_add_node(const int64_t node_id);
   int32_t send_rmt_add_node(const int64_t node_id);
   int32_t recv_rmt_add_node(const int32_t seqid);
-  int32_t rmt_add_edge(const int64_t node_a_id, const int64_t node_b_id);
-  int32_t send_rmt_add_edge(const int64_t node_a_id, const int64_t node_b_id);
-  int32_t recv_rmt_add_edge(const int32_t seqid);
   int32_t rmt_add_edge_half(const int64_t node_a_id, const int64_t node_b_id);
   int32_t send_rmt_add_edge_half(const int64_t node_a_id, const int64_t node_b_id);
   int32_t recv_rmt_add_edge_half(const int32_t seqid);

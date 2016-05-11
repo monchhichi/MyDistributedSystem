@@ -481,52 +481,24 @@ class RemoteServiceHandler : virtual public RemoteServiceIf {
     return rc;
   }
 
-  int32_t rmt_add_edge(const int64_t node_a_id, const int64_t node_b_id) {
-
-    int rc = add_edge(node_a_id, node_b_id);
-
-    printf("rmt_add_edge\n");
-    return rc;
-  }
-
   int32_t rmt_add_edge_half(const int64_t node_a_id, const int64_t node_b_id) {
-
+    mtx.lock();
     int rc = add_edge_half(node_a_id, node_b_id);
-
     printf("rmt_add_edge_half\n");
+    mtx.unlock();
     return rc;
   }
 
   int32_t rmt_remove_node(const int64_t node_id) {
-    // Your implementation goes here
     int rc = remove_node(node_id);
-    // if (!tailFlag) {
-    //     boost::shared_ptr<TTransport> socket(new TSocket(s_next_host, next_rpc_port));
-    //     boost::shared_ptr<TTransport> transport(new TBufferedTransport(socket));
-    //     boost::shared_ptr<TProtocol> protocol(new TBinaryProtocol(transport));
-    //     RemoteServiceClient client(protocol);
-    //     transport->open();
-    //     client.rmt_remove_node(node_id);
-    //     transport->close();
-    // }
+    printf("rmt_remove_node\n");
     return rc;
-    // printf("rmt_remove_node\n");
   }
 
   int32_t rmt_remove_edge(const int64_t node_a_id, const int64_t node_b_id) {
-    // Your implementation goes here
     int rc = remove_edge(node_a_id, node_b_id);
-    // if (!tailFlag) {
-    //     boost::shared_ptr<TTransport> socket(new TSocket(s_next_host, next_rpc_port));
-    //     boost::shared_ptr<TTransport> transport(new TBufferedTransport(socket));
-    //     boost::shared_ptr<TProtocol> protocol(new TBinaryProtocol(transport));
-    //     RemoteServiceClient client(protocol);
-    //     transport->open();
-    //     client.rmt_remove_edge(node_a_id, node_b_id);
-    //     transport->close();
-    // }
+    printf("rmt_remove_edge\n");
     return rc;
-    // printf("rmt_remove_edge\n");
   }
 
   void rmt_lock() {

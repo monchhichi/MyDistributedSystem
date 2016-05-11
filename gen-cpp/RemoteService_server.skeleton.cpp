@@ -35,11 +35,6 @@ class RemoteServiceHandler : virtual public RemoteServiceIf {
     printf("rmt_add_node\n");
   }
 
-  int32_t rmt_add_edge(const int64_t node_a_id, const int64_t node_b_id) {
-    // Your implementation goes here
-    printf("rmt_add_edge\n");
-  }
-
   int32_t rmt_add_edge_half(const int64_t node_a_id, const int64_t node_b_id) {
     // Your implementation goes here
     printf("rmt_add_edge_half\n");
